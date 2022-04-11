@@ -17,7 +17,7 @@ function importSequences {
     else
         echo "Try again!" 
     fi
-    
+
     qiime tools import \
     --type $import_type \
     --input-path manifest.tsv \
@@ -128,9 +128,61 @@ function createTaxanomy {
     fi
 
     
-
-    
 }
+
+function diffAbund {
+
+    read -p "Common factor between samples you want to compare: " same_factor
+    read -p "What column is this factor from the metadata file?: " column
+    read -p "What is the differential factor? " diff
+
+    #Filters table for commercial samples
+    qiime feature-table filter-samples \
+    --i-table sample-frequency-filtered-table-single.qza \
+    --m-metadata-file metadata.tsv \
+    --p-where "[$column]='$same_factor'" \
+    --o-filtered-table frequency-filtered-commercial-table.qza
+
+
+    #Collapses taxonomy table at level 6
+    qiime taxa collapse \
+    --i-table frequency-filtered-commercial-table.qza \
+    --i-taxonomy taxonomy.qza \
+    --p-level 6 \
+    --o-collapsed-table "$same_factor-table-l6.qza"
+
+
+    #adds 1 to all values to prevent divide and log issues
+    qiime composition add-pseudocount \
+    --i-table "$same_factor-table-l6.qza" \
+    --o-composition-table "comp-$same_factor-table-l6.qza"
+
+    #Produces differential abundance plots that compares groups based on timing
+    qiime composition ancom \
+    --i-table "comp-$same_factor-table-l6.qza" \
+    --m-metadata-file metadata.tsv \
+    --m-metadata-column $diff \
+    --o-visualization "l6-ancom-$diff-$same_factor.qzv"
+
+    qiime taxa collapse \
+    --i-table frequency-filtered-commercial-table.qza \
+    --i-taxonomy taxonomy.qza \
+    --p-level 7 \
+    --o-collapsed-table "$same_factor-table-l7.qza"
+
+    qiime composition add-pseudocount \
+    --i-table "$same_factor-table-l7.qza" \
+    --o-composition-table "comp-$same_factor-table-l7.qza"
+
+    qiime composition ancom \
+    --i-table "comp-$same_factor-table-l7.qza" \
+    --m-metadata-file metadata.tsv \
+    --m-metadata-column $diff \
+    --o-visualization "l7-ancom-$diff-$same_factor.qzv"
+}
+
+
+
 
 
 
@@ -140,4 +192,5 @@ makePhyloTree
 alphaRare
 coreMetrics
 createTaxanomy
+diffAbund
 
