@@ -17,9 +17,16 @@ function importSequences {
     else
         echo "Try again!" 
     fi
-    qiime tools import --type $import_type --input-path manifest.tsv --output-path paired-end-demux.qza --input-format PairedEndFastqManifestPhred33V2
+    
+    qiime tools import \
+    --type $import_type \
+    --input-path manifest.tsv \
+    --output-path paired-end-demux.qza \
+    --input-format PairedEndFastqManifestPhred33V2
 
-    qiime demux summarize --i-data paired-end-demux.qza --o-visualization paired-end-demux.qzv
+    qiime demux summarize \
+    --i-data paired-end-demux.qza \
+    --o-visualization paired-end-demux.qzv
 
     afplay /System/Library/Sounds/Funk.aiff
     say done
