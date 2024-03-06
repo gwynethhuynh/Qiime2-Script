@@ -157,28 +157,34 @@ function diffAbund {
     --i-table "$same_factor-table-l6.qza" \
     --o-composition-table "comp-$same_factor-table-l6.qza"
 
-    #Produces differential abundance plots that compares groups based on timing
+    #Produces differential abundance plots that compares groups based on inputted "diff"
     qiime composition ancom \
     --i-table "comp-$same_factor-table-l6.qza" \
     --m-metadata-file metadata.tsv \
     --m-metadata-column $diff \
     --o-visualization "l6-ancom-$diff-$same_factor.qzv"
 
+    #Collapses taxonomy table at level 7
     qiime taxa collapse \
     --i-table frequency-filtered-commercial-table.qza \
     --i-taxonomy taxonomy.qza \
     --p-level 7 \
     --o-collapsed-table "$same_factor-table-l7.qza"
 
+    #adds 1 to all values to prevent divide and log issues
     qiime composition add-pseudocount \
     --i-table "$same_factor-table-l7.qza" \
     --o-composition-table "comp-$same_factor-table-l7.qza"
 
+    #Produces differential abundance plots that compares groups based on inputted "diff"
     qiime composition ancom \
     --i-table "comp-$same_factor-table-l7.qza" \
     --m-metadata-file metadata.tsv \
     --m-metadata-column $diff \
     --o-visualization "l7-ancom-$diff-$same_factor.qzv"
+
+    afplay /System/Library/Sounds/Funk.aiff
+    say done
 }
 
 
